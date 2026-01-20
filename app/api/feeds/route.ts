@@ -83,18 +83,22 @@ export async function GET(request: NextRequest) {
     }
 
     // Get content for relevant articles
-    const contentQuery = `SELECT title, content FROM rss_item WHERE id IN (${relevantIds.join(',')})`
+    const contentQuery = `SELECT title, content, url FROM rss_item WHERE id IN (${relevantIds.join(',')})`
     const { stdout: contentOutput } = await execAsync(`sqlite3 -separator '|||' "${dbPath}" "${contentQuery}"`)
     
     const articles = contentOutput.trim().split('\n').map(line => {
       const parts = line.split('|||')
       const title = cleanHTML(parts[0] || '')
-      const rawContent = parts.slice(1).join('|||') // Rejoin in case content had |||
+      const rawContent = parts.slice(1, -1).join('|||') // Content might have |||
+      const url = parts[parts.length - 1] || '' // URL is always last
       const content = cleanHTML(rawContent)
-      return { title, content }
+      return { title, content, url }
     }).filter(a => a.title.length > 5 && a.content.length > 50)
 
-    const themes = articles.slice(0, 6).map(a => a.title)
+    const themes = articles.slice(0, 6).map(a => ({
+      title: a.title,
+      url: a.url
+    }))
     
     // Generate comprehensive professional brief
     const briefParagraphs = articles.slice(0, 8).map(a => {

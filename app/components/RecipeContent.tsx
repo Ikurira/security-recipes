@@ -10,9 +10,10 @@ export default function RecipeContent({ selectedTopic }: RecipeContentProps) {
   const [isPublishing, setIsPublishing] = useState(false)
   const [isReading, setIsReading] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [keyThemes, setKeyThemes] = useState<string[]>([])
+  const [keyThemes, setKeyThemes] = useState<Array<{title: string, url: string}>>([])
   const [brief, setBrief] = useState('')
   const [articleCount, setArticleCount] = useState(0)
+  const [showSources, setShowSources] = useState(false)
 
   useEffect(() => {
     fetchFeedData()
@@ -143,15 +144,24 @@ export default function RecipeContent({ selectedTopic }: RecipeContentProps) {
           <h2 className="text-xl font-semibold text-white mb-4 flex items-center space-x-2">
             <span>🎯</span>
             <span>Key Security Themes</span>
+            <span className="text-xs text-slate-400 font-normal ml-2">(Click to view source)</span>
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {keyThemes.map((theme, index) => (
-              <div
+              <a
                 key={index}
-                className="bg-primary-500/10 border border-primary-500/30 rounded-lg p-4 hover:bg-primary-500/20 transition-all duration-300 hover:-translate-y-1"
+                href={theme.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-primary-500/10 border border-primary-500/30 rounded-lg p-4 hover:bg-primary-500/20 transition-all duration-300 hover:-translate-y-1 cursor-pointer group"
               >
-                <div className="text-slate-200 text-sm font-medium">{theme}</div>
-              </div>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="text-slate-200 text-sm font-medium flex-1">{theme.title}</div>
+                  <svg className="w-4 h-4 text-primary-400 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </div>
+              </a>
             ))}
           </div>
         </div>
@@ -208,6 +218,13 @@ export default function RecipeContent({ selectedTopic }: RecipeContentProps) {
           <span>{isPublishing ? 'Publishing...' : 'Publish Recipe'}</span>
         </button>
         
+        <button 
+          onClick={() => setShowSources(!showSources)}
+          className="flex items-center space-x-2 bg-slate-700/60 text-slate-200 border border-slate-600 px-6 py-3 rounded-lg font-medium hover:bg-slate-700/80 hover:border-slate-500 transition-all duration-300">
+          <span>🔗</span>
+          <span>{showSources ? 'Hide Sources' : 'View All Sources'}</span>
+        </button>
+        
         <button className="flex items-center space-x-2 bg-slate-700/60 text-slate-200 border border-slate-600 px-6 py-3 rounded-lg font-medium hover:bg-slate-700/80 hover:border-slate-500 transition-all duration-300">
           <span>✏️</span>
           <span>Edit Content</span>
@@ -224,6 +241,40 @@ export default function RecipeContent({ selectedTopic }: RecipeContentProps) {
           <span>Export</span>
         </button>
       </div>
+
+      {/* Sources List */}
+      {showSources && keyThemes.length > 0 && (
+        <div className="mt-6 bg-dark-800/40 border border-slate-700 rounded-xl p-6">
+          <h3 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
+            <span>📚</span>
+            <span>Article Sources</span>
+          </h3>
+          <div className="space-y-3">
+            {keyThemes.map((theme, index) => (
+              <a
+                key={index}
+                href={theme.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start gap-3 p-3 rounded-lg bg-slate-700/30 hover:bg-slate-700/50 transition-all duration-200 group"
+              >
+                <span className="text-primary-400 font-mono text-sm flex-shrink-0">{index + 1}.</span>
+                <div className="flex-1 min-w-0">
+                  <div className="text-slate-200 text-sm font-medium mb-1 group-hover:text-primary-400 transition-colors">
+                    {theme.title}
+                  </div>
+                  <div className="text-slate-400 text-xs truncate">
+                    {theme.url}
+                  </div>
+                </div>
+                <svg className="w-4 h-4 text-primary-400 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
     </main>
   )
 }
