@@ -10,16 +10,16 @@
     "feed-processor": "node scripts/processFeed.js"
   },
   "dependencies": {
-    "next": "14.0.4",
+    "axios": "^1.6.2",
+    "date-fns": "^2.30.0",
+    "feedparser": "^2.2.10",
+    "fs-extra": "^11.2.0",
+    "gray-matter": "^4.0.3",
+    "next": "^14.2.35",
     "react": "^18",
     "react-dom": "^18",
-    "feedparser": "^2.2.10",
-    "axios": "^1.6.2",
-    "gray-matter": "^4.0.3",
     "remark": "^15.0.1",
-    "remark-html": "^16.0.1",
-    "date-fns": "^2.30.0",
-    "fs-extra": "^11.2.0"
+    "remark-html": "^16.0.1"
   },
   "devDependencies": {
     "@types/node": "^20",
