@@ -1,21 +1,55 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
-const keyThemes = [
-  'Zero Trust Architecture Implementation',
-  'Multi-Cloud Security Posture',
-  'Container Runtime Protection',
-  'AI-Powered Threat Detection',
-  'Identity & Access Evolution',
-  'DevSecOps Integration',
-]
+interface RecipeContentProps {
+  selectedTopic: string
+}
 
-const sampleBrief = `Modern cloud security demands a paradigm shift from traditional perimeter defenses to comprehensive zero trust architectures that authenticate and authorize every interaction. Organizations adopting multi-cloud strategies must implement unified security posture management across AWS, Azure, and GCP environments to maintain consistent protection standards. Container security has evolved beyond static image scanning to encompass real-time runtime protection and behavioral anomaly detection. Identity management has become the new security perimeter, emphasizing privileged access management, just-in-time access controls, and continuous authentication mechanisms. Artificial intelligence and machine learning technologies are revolutionizing threat detection capabilities, enabling real-time analysis and response to security events across distributed cloud infrastructures. The integration of DevSecOps practices ensures security considerations are embedded throughout the entire development lifecycle rather than treated as an afterthought. Compliance frameworks are rapidly adapting to cloud-native architectures, requiring innovative approaches to audit trails, data governance, and regulatory adherence. Organizations must strategically balance automated security controls with human oversight to maintain both robust protection and operational efficiency in their cloud environments.`
-
-export default function RecipeContent() {
+export default function RecipeContent({ selectedTopic }: RecipeContentProps) {
   const [isPublishing, setIsPublishing] = useState(false)
   const [isReading, setIsReading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [keyThemes, setKeyThemes] = useState<string[]>([])
+  const [brief, setBrief] = useState('')
+  const [articleCount, setArticleCount] = useState(0)
+
+  useEffect(() => {
+    fetchFeedData()
+  }, [selectedTopic])
+
+  const fetchFeedData = async () => {
+    setIsLoading(true)
+    try {
+      const response = await fetch(`/api/feeds?topic=${encodeURIComponent(selectedTopic)}`)
+      const data = await response.json()
+
+      if (data.success) {
+        setKeyThemes(data.themes)
+        setBrief(data.brief)
+        setArticleCount(data.articleCount)
+      } else {
+        // Fallback to static data if newsboat not available
+        setKeyThemes([
+          `${selectedTopic} Best Practices`,
+          `Emerging Threats in ${selectedTopic}`,
+          `${selectedTopic} Architecture`,
+          `Compliance and ${selectedTopic}`,
+          `${selectedTopic} Automation`,
+          `Future of ${selectedTopic}`
+        ])
+        setBrief(`Security analysis for ${selectedTopic}. ${data.message || 'Run newsboat to fetch real feed data.'}`)
+        setArticleCount(0)
+      }
+    } catch (error) {
+      console.error('Error fetching feeds:', error)
+      setKeyThemes([`${selectedTopic} Overview`])
+      setBrief(`Unable to load feed data for ${selectedTopic}. Please ensure newsboat is configured.`)
+      setArticleCount(0)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const handlePublish = async () => {
     setIsPublishing(true)
@@ -27,10 +61,10 @@ export default function RecipeContent() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          title: 'Cloud Security Recipe #001',
+          title: `${selectedTopic} Recipe`,
           themes: keyThemes,
-          brief: sampleBrief,
-          category: 'cloud-security'
+          brief: brief,
+          category: selectedTopic.toLowerCase().replace(/\s+/g, '-')
         })
       })
       
@@ -54,12 +88,10 @@ export default function RecipeContent() {
 
   const handleReadAloud = () => {
     if (isReading) {
-      // Stop reading
       window.speechSynthesis.cancel()
       setIsReading(false)
     } else {
-      // Start reading
-      const utterance = new SpeechSynthesisUtterance(sampleBrief)
+      const utterance = new SpeechSynthesisUtterance(brief)
       utterance.rate = 0.9
       utterance.pitch = 1
       utterance.volume = 0.8
@@ -72,46 +104,68 @@ export default function RecipeContent() {
     }
   }
 
+  if (isLoading) {
+    return (
+      <main className="glass rounded-2xl p-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-slate-400 text-lg">Loading {selectedTopic} feeds...</div>
+        </div>
+      </main>
+    )
+  }
+
   return (
     <main className="glass rounded-2xl p-8">
       {/* Recipe Header */}
       <div className="mb-8 pb-6 border-b border-slate-700">
         <h1 className="text-3xl font-bold bg-gradient-accent bg-clip-text text-transparent mb-2">
-          Cloud Security Recipe #001
+          {selectedTopic} Recipe
         </h1>
         <div className="flex flex-wrap gap-6 text-sm text-slate-400">
           <div className="flex items-center space-x-2">
             <span>📊</span>
-            <span>15 articles analyzed</span>
+            <span>{articleCount} articles analyzed</span>
           </div>
           <div className="flex items-center space-x-2">
             <span>🕒</span>
-            <span>Updated 2 hours ago</span>
+            <span>Updated just now</span>
           </div>
           <div className="flex items-center space-x-2">
             <span>🏷️</span>
-            <span>Cloud Security</span>
+            <span>{selectedTopic}</span>
           </div>
         </div>
       </div>
 
       {/* Key Themes Section */}
-      <div className="bg-dark-800/40 border border-slate-700 rounded-xl p-6 mb-6">
-        <h2 className="text-xl font-semibold text-white mb-4 flex items-center space-x-2">
-          <span>🎯</span>
-          <span>Key Security Themes</span>
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {keyThemes.map((theme, index) => (
-            <div
-              key={index}
-              className="bg-primary-500/10 border border-primary-500/30 rounded-lg p-4 hover:bg-primary-500/20 transition-all duration-300 hover:-translate-y-1"
-            >
-              <div className="text-slate-200 text-sm font-medium">{theme}</div>
-            </div>
-          ))}
+      {keyThemes.length > 0 ? (
+        <div className="bg-dark-800/40 border border-slate-700 rounded-xl p-6 mb-6">
+          <h2 className="text-xl font-semibold text-white mb-4 flex items-center space-x-2">
+            <span>🎯</span>
+            <span>Key Security Themes</span>
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {keyThemes.map((theme, index) => (
+              <div
+                key={index}
+                className="bg-primary-500/10 border border-primary-500/30 rounded-lg p-4 hover:bg-primary-500/20 transition-all duration-300 hover:-translate-y-1"
+              >
+                <div className="text-slate-200 text-sm font-medium">{theme}</div>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="bg-dark-800/40 border border-slate-700 rounded-xl p-6 mb-6">
+          <h2 className="text-xl font-semibold text-white mb-4 flex items-center space-x-2">
+            <span>🎯</span>
+            <span>Key Security Themes</span>
+          </h2>
+          <div className="text-slate-400 text-center py-8">
+            No themes available. Fetch more feeds with: <code className="bg-slate-700 px-2 py-1 rounded">newsboat -x reload</code>
+          </div>
+        </div>
+      )}
 
       {/* Security Brief Section */}
       <div className="bg-dark-800/40 border border-slate-700 rounded-xl p-6 mb-8">
@@ -132,8 +186,14 @@ export default function RecipeContent() {
             <span>{isReading ? 'Stop Reading' : 'Read Aloud'}</span>
           </button>
         </div>
-        <div className="text-slate-200 leading-relaxed text-base">
-          <p>{sampleBrief}</p>
+        <div className="text-slate-200 leading-relaxed text-base max-h-96 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800">
+          {brief ? (
+            <p className="whitespace-pre-line">{brief}</p>
+          ) : (
+            <div className="text-slate-400 text-center py-8">
+              No content available for {selectedTopic}. Run <code className="bg-slate-700 px-2 py-1 rounded">newsboat -x reload</code> to fetch feeds.
+            </div>
+          )}
         </div>
       </div>
 
@@ -153,7 +213,8 @@ export default function RecipeContent() {
           <span>Edit Content</span>
         </button>
         
-        <button className="flex items-center space-x-2 bg-slate-700/60 text-slate-200 border border-slate-600 px-6 py-3 rounded-lg font-medium hover:bg-slate-700/80 hover:border-slate-500 transition-all duration-300">
+        <button className="flex items-center space-x-2 bg-slate-700/60 text-slate-200 border border-slate-600 px-6 py-3 rounded-lg font-medium hover:bg-slate-700/80 hover:border-slate-500 transition-all duration-300"
+          onClick={fetchFeedData}>
           <span>🔄</span>
           <span>Regenerate</span>
         </button>

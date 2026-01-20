@@ -1,0 +1,40 @@
+# Cloud Security Feeds
+https://aws.amazon.com/blogs/security/feed/ "Cloud Security" "~AWS Security"
+https://azure.microsoft.com/en-us/blog/topics/security/feed/ "Cloud Security" "~Azure Security"
+https://cloud.google.com/blog/products/identity-security/rss "Cloud Security" "~GCP Security"
+https://www.cloudflare.com/rss/blog/ "Cloud Security" "~Cloudflare"
+
+# Hardware Security Feeds
+https://www.schneier.com/blog/atom.xml "Hardware Security" "~Schneier"
+https://www.darkreading.com/rss/all.xml "Hardware Security" "~Dark Reading"
+
+# Infrastructure Security Feeds
+https://krebsonsecurity.com/feed/ "Infrastructure" "~Krebs"
+https://www.sans.org/blog/rss/ "Infrastructure" "~SANS"
+https://threatpost.com/feed/ "Infrastructure" "~Threatpost"
+
+# Malware Research Feeds
+https://www.bleepingcomputer.com/feed/ "Malware Research" "~BleepingComputer"
+https://www.malwarebytes.com/blog/feed/index.xml "Malware Research" "~Malwarebytes"
+https://blog.talosintelligence.com/rss/ "Malware Research" "~Talos"
+
+# Government Alerts Feeds
+https://www.cisa.gov/cybersecurity-advisories/all.xml "Government Alerts" "~CISA"
+https://www.us-cert.gov/ncas/current-activity.xml "Government Alerts" "~US-CERT"
+
+# Zero Trust Tag
+https://www.csoonline.com/feed/ "Zero Trust" "~CSO Online"
+
+# Container Security Tag
+https://sysdig.com/blog/feed/ "Container Security" "~Sysdig"
+https://www.aquasec.com/blog/feed/ "Container Security" "~Aqua Security"
+
+# TPM/HSM Tag
+https://trustedcomputinggroup.org/feed/ "TPM/HSM" "~TCG"
+
+# DevSecOps Tag
+https://devops.com/category/blogs/devsecops/feed/ "DevSecOps" "~DevOps.com"
+https://www.sonatype.com/blog/rss.xml "DevSecOps" "~Sonatype"
+
+# Compliance Tag
+https://www.complianceweek.com/rss "Compliance" "~Compliance Week"
