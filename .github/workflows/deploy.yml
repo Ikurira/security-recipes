@@ -1,0 +1,54 @@
+name: Deploy to AWS App Runner
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  APP_NAME: security-recipes
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: ${{ env.AWS_REGION }}
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build and push Docker image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker build -t $ECR_REGISTRY/$APP_NAME:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$APP_NAME:$IMAGE_TAG
+        docker tag $ECR_REGISTRY/$APP_NAME:$IMAGE_TAG $ECR_REGISTRY/$APP_NAME:latest
+        docker push $ECR_REGISTRY/$APP_NAME:latest
+
+    - name: Deploy to App Runner
+      run: |
+        aws apprunner update-service \
+          --service-arn ${{ secrets.APP_RUNNER_SERVICE_ARN }} \
+          --source-configuration "ImageRepository={ImageIdentifier=${{ steps.login-ecr.outputs.registry }}/${{ env.APP_NAME }}:${{ github.sha }},ImageRepositoryType=ECR,ImageConfiguration={Port=3000}}" \
+          --region ${{ env.AWS_REGION }}
+
+    - name: Get App Runner URL
+      run: |
+        URL=$(aws apprunner describe-service \
+          --service-arn ${{ secrets.APP_RUNNER_SERVICE_ARN }} \
+          --region ${{ env.AWS_REGION }} \
+          --query 'Service.ServiceUrl' \
+          --output text)
+        echo "🚀 Deployed to: https://$URL"

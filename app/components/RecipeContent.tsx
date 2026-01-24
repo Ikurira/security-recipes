@@ -32,19 +32,19 @@ export default function RecipeContent({ selectedTopic }: RecipeContentProps) {
       } else {
         // Fallback to static data if newsboat not available
         setKeyThemes([
-          `${selectedTopic} Best Practices`,
-          `Emerging Threats in ${selectedTopic}`,
-          `${selectedTopic} Architecture`,
-          `Compliance and ${selectedTopic}`,
-          `${selectedTopic} Automation`,
-          `Future of ${selectedTopic}`
+          { title: `${selectedTopic} Best Practices`, url: '' },
+          { title: `Emerging Threats in ${selectedTopic}`, url: '' },
+          { title: `${selectedTopic} Architecture`, url: '' },
+          { title: `Compliance and ${selectedTopic}`, url: '' },
+          { title: `${selectedTopic} Automation`, url: '' },
+          { title: `Future of ${selectedTopic}`, url: '' }
         ])
         setBrief(`Security analysis for ${selectedTopic}. ${data.message || 'Run newsboat to fetch real feed data.'}`)
         setArticleCount(0)
       }
     } catch (error) {
       console.error('Error fetching feeds:', error)
-      setKeyThemes([`${selectedTopic} Overview`])
+      setKeyThemes([{ title: `${selectedTopic} Overview`, url: '' }])
       setBrief(`Unable to load feed data for ${selectedTopic}. Please ensure newsboat is configured.`)
       setArticleCount(0)
     } finally {
@@ -63,7 +63,7 @@ export default function RecipeContent({ selectedTopic }: RecipeContentProps) {
         },
         body: JSON.stringify({
           title: `${selectedTopic} Recipe`,
-          themes: keyThemes,
+          themes: keyThemes.map(t => t.title), // Extract just the titles
           brief: brief,
           category: selectedTopic.toLowerCase().replace(/\s+/g, '-')
         })

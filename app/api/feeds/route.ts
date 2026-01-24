@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const dbPath = `${process.env.HOME}/snap/newsboat/8729/.newsboat/cache.db`
+    const dbPath = process.env.NEWSBOAT_DB || `${process.env.HOME}/.newsboat/cache.db`
     
     // First get titles to identify relevant articles
     const titleQuery = `SELECT id, title FROM rss_item WHERE deleted = 0 ORDER BY pubDate DESC LIMIT 200`
