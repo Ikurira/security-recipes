@@ -10,6 +10,7 @@ Security-focused recipes for building securely. A React/Next.js application that
 - 📚 **Recipe Listings** - Browse all published security recipes
 - 🌙 **Dark Theme UI** - Modern glass morphism design
 - 📱 **Responsive Layout** - Works on desktop and mobile
+- ☁️ **Vercel Ready** - Deploys to Vercel with no external dependencies
 
 ## Tech Stack
 
@@ -48,11 +49,13 @@ Security-focused recipes for building securely. A React/Next.js application that
 
 ## RSS Integration
 
-The application is designed to work with newsboat RSS feeds covering:
+The application fetches RSS feeds directly from security news sources covering:
 - General security news (Krebs, SANS, Dark Reading)
 - Cloud security (AWS, Microsoft, Google Cloud)
 - Infrastructure security (hardware, firmware, TPM)
 - Security research and government alerts
+
+Feeds are fetched on-demand when you select a topic, with no local dependencies required.
 
 ## Project Structure
 
