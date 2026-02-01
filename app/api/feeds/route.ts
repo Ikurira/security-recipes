@@ -6,16 +6,15 @@ const parser = new Parser()
 const RSS_FEEDS: Record<string, string[]> = {
   'Cloud Security': [
     'https://aws.amazon.com/blogs/security/feed/',
-    'https://cloud.google.com/blog/products/identity-security/rss',
-    'https://www.cloudflare.com/rss/blog/'
+    'https://blog.cloudflare.com/rss/'
   ],
   'Hardware Security': [
     'https://www.schneier.com/blog/atom.xml',
-    'https://www.darkreading.com/rss/all.xml'
+    'https://www.darkreading.com/rss.xml'
   ],
   'Infrastructure': [
     'https://krebsonsecurity.com/feed/',
-    'https://www.sans.org/blog/rss/',
+    'https://isc.sans.edu/rssfeed.xml',
     'https://threatpost.com/feed/'
   ],
   'Malware Research': [
@@ -29,18 +28,17 @@ const RSS_FEEDS: Record<string, string[]> = {
     'https://www.csoonline.com/feed/'
   ],
   'Container Security': [
-    'https://sysdig.com/blog/feed/',
-    'https://www.aquasec.com/blog/feed/'
+    'https://www.aquasec.com/feed/'
   ],
   'TPM/HSM': [
-    'https://trustedcomputinggroup.org/feed/'
+    'https://www.schneier.com/blog/atom.xml'
   ],
   'DevSecOps': [
     'https://devops.com/category/blogs/devsecops/feed/',
     'https://www.sonatype.com/blog/rss.xml'
   ],
   'Compliance': [
-    'https://www.complianceweek.com/rss'
+    'https://www.csoonline.com/feed/'
   ]
 }
 
@@ -98,8 +96,9 @@ export async function GET(request: NextRequest) {
     const feedResults = await Promise.all(fetchPromises)
     const items = feedResults.flat()
 
-    // Score and filter articles
+    // Score and filter articles with recency boost
     const keywords = topicKeywords[topic] || [topic.toLowerCase()]
+    const now = Date.now()
     
     items.forEach(item => {
       const title = cleanHTML(item.title || '')
@@ -112,6 +111,18 @@ export async function GET(request: NextRequest) {
         if (titleLower.includes(kw)) score += 100
         if (contentLower.includes(kw)) score += 10
       })
+
+      // Add recency boost: newer articles get higher scores
+      const pubDate = item.pubDate || item.isoDate
+      if (pubDate) {
+        const articleDate = new Date(pubDate).getTime()
+        const ageInDays = (now - articleDate) / (1000 * 60 * 60 * 24)
+        
+        // Boost recent articles: 200 points for today, decreasing over 30 days
+        if (ageInDays < 30) {
+          score += Math.max(0, 200 - (ageInDays * 6))
+        }
+      }
 
       if (score > 0 && title.length > 5) {
         allArticles.push({
