@@ -3,6 +3,7 @@
 import Navbar from './components/Navbar'
 import Sidebar from './components/Sidebar'
 import RecipeContent from './components/RecipeContent'
+import URLHealthCheck from './components/URLHealthCheck'
 import Footer from './components/Footer'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -27,6 +28,7 @@ export default function Home() {
             </Link>
           </div>
           <RecipeContent selectedTopic={selectedTopic} />
+          <URLHealthCheck />
         </div>
       </div>
       <Footer />

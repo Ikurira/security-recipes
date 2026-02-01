@@ -30,22 +30,22 @@ export default function RecipeContent({ selectedTopic }: RecipeContentProps) {
         setBrief(data.brief)
         setArticleCount(data.articleCount)
       } else {
-        // Fallback to static data if newsboat not available
+        // Fallback to static data if feeds unavailable
         setKeyThemes([
-          `${selectedTopic} Best Practices`,
-          `Emerging Threats in ${selectedTopic}`,
-          `${selectedTopic} Architecture`,
-          `Compliance and ${selectedTopic}`,
-          `${selectedTopic} Automation`,
-          `Future of ${selectedTopic}`
+          { title: `${selectedTopic} Best Practices`, url: '' },
+          { title: `Emerging Threats in ${selectedTopic}`, url: '' },
+          { title: `${selectedTopic} Architecture`, url: '' },
+          { title: `Compliance and ${selectedTopic}`, url: '' },
+          { title: `${selectedTopic} Automation`, url: '' },
+          { title: `Future of ${selectedTopic}`, url: '' }
         ])
-        setBrief(`Security analysis for ${selectedTopic}. ${data.message || 'Run newsboat to fetch real feed data.'}`)
+        setBrief(`Security analysis for ${selectedTopic}. ${data.message || 'Loading feed data...'}`)
         setArticleCount(0)
       }
     } catch (error) {
       console.error('Error fetching feeds:', error)
-      setKeyThemes([`${selectedTopic} Overview`])
-      setBrief(`Unable to load feed data for ${selectedTopic}. Please ensure newsboat is configured.`)
+      setKeyThemes([{ title: `${selectedTopic} Overview`, url: '' }])
+      setBrief(`Unable to load feed data for ${selectedTopic}. Please try again later.`)
       setArticleCount(0)
     } finally {
       setIsLoading(false)
@@ -63,7 +63,7 @@ export default function RecipeContent({ selectedTopic }: RecipeContentProps) {
         },
         body: JSON.stringify({
           title: `${selectedTopic} Recipe`,
-          themes: keyThemes,
+          themes: keyThemes.map(t => t.title), // Extract just the titles
           brief: brief,
           category: selectedTopic.toLowerCase().replace(/\s+/g, '-')
         })
@@ -172,7 +172,7 @@ export default function RecipeContent({ selectedTopic }: RecipeContentProps) {
             <span>Key Security Themes</span>
           </h2>
           <div className="text-slate-400 text-center py-8">
-            No themes available. Fetch more feeds with: <code className="bg-slate-700 px-2 py-1 rounded">newsboat -x reload</code>
+            No themes available. Please try again later.
           </div>
         </div>
       )}
@@ -201,7 +201,7 @@ export default function RecipeContent({ selectedTopic }: RecipeContentProps) {
             <p className="whitespace-pre-line">{brief}</p>
           ) : (
             <div className="text-slate-400 text-center py-8">
-              No content available for {selectedTopic}. Run <code className="bg-slate-700 px-2 py-1 rounded">newsboat -x reload</code> to fetch feeds.
+              No content available for {selectedTopic}. Please try again later.
             </div>
           )}
         </div>
