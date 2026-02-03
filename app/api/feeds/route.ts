@@ -129,6 +129,7 @@ export async function GET(request: NextRequest) {
           title,
           content,
           url: item.link || '',
+          date: pubDate || null,
           score
         })
       }
@@ -149,7 +150,8 @@ export async function GET(request: NextRequest) {
 
     const themes = topArticles.slice(0, 6).map(a => ({
       title: a.title,
-      url: a.url
+      url: a.url,
+      date: a.date
     }))
 
     // Generate brief

@@ -10,7 +10,7 @@ export default function RecipeContent({ selectedTopic }: RecipeContentProps) {
   const [isPublishing, setIsPublishing] = useState(false)
   const [isReading, setIsReading] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [keyThemes, setKeyThemes] = useState<Array<{title: string, url: string}>>([])
+  const [keyThemes, setKeyThemes] = useState<Array<{title: string, url: string, date?: string}>>([])
   const [brief, setBrief] = useState('')
   const [articleCount, setArticleCount] = useState(0)
   const [showSources, setShowSources] = useState(false)
@@ -32,24 +32,38 @@ export default function RecipeContent({ selectedTopic }: RecipeContentProps) {
       } else {
         // Fallback to static data if feeds unavailable
         setKeyThemes([
-          { title: `${selectedTopic} Best Practices`, url: '' },
-          { title: `Emerging Threats in ${selectedTopic}`, url: '' },
-          { title: `${selectedTopic} Architecture`, url: '' },
-          { title: `Compliance and ${selectedTopic}`, url: '' },
-          { title: `${selectedTopic} Automation`, url: '' },
-          { title: `Future of ${selectedTopic}`, url: '' }
+          { title: `${selectedTopic} Best Practices`, url: '', date: undefined },
+          { title: `Emerging Threats in ${selectedTopic}`, url: '', date: undefined },
+          { title: `${selectedTopic} Architecture`, url: '', date: undefined },
+          { title: `Compliance and ${selectedTopic}`, url: '', date: undefined },
+          { title: `${selectedTopic} Automation`, url: '', date: undefined },
+          { title: `Future of ${selectedTopic}`, url: '', date: undefined }
         ])
         setBrief(`Security analysis for ${selectedTopic}. ${data.message || 'Loading feed data...'}`)
         setArticleCount(0)
       }
     } catch (error) {
       console.error('Error fetching feeds:', error)
-      setKeyThemes([{ title: `${selectedTopic} Overview`, url: '' }])
+      setKeyThemes([{ title: `${selectedTopic} Overview`, url: '', date: undefined }])
       setBrief(`Unable to load feed data for ${selectedTopic}. Please try again later.`)
       setArticleCount(0)
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'Date unknown'
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffMs = now.getTime() - date.getTime()
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+    
+    if (diffDays === 0) return 'Today'
+    if (diffDays === 1) return 'Yesterday'
+    if (diffDays < 7) return `${diffDays} days ago`
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   }
 
   const handlePublish = async () => {
@@ -144,7 +158,7 @@ export default function RecipeContent({ selectedTopic }: RecipeContentProps) {
           <h2 className="text-xl font-semibold text-white mb-4 flex items-center space-x-2">
             <span>🎯</span>
             <span>Key Security Themes</span>
-            <span className="text-xs text-slate-400 font-normal ml-2">(Click to view source)</span>
+            <span className="text-xs text-slate-400 font-normal ml-2">(Ordered by date)</span>
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {keyThemes.map((theme, index) => (
@@ -155,11 +169,15 @@ export default function RecipeContent({ selectedTopic }: RecipeContentProps) {
                 rel="noopener noreferrer"
                 className="bg-primary-500/10 border border-primary-500/30 rounded-lg p-4 hover:bg-primary-500/20 transition-all duration-300 hover:-translate-y-1 cursor-pointer group"
               >
-                <div className="flex items-start justify-between gap-2">
+                <div className="flex items-start justify-between gap-2 mb-2">
                   <div className="text-slate-200 text-sm font-medium flex-1">{theme.title}</div>
                   <svg className="w-4 h-4 text-primary-400 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                   </svg>
+                </div>
+                <div className="text-xs text-slate-400 flex items-center gap-1">
+                  <span>📅</span>
+                  <span>{formatDate(theme.date)}</span>
                 </div>
               </a>
             ))}
@@ -263,8 +281,12 @@ export default function RecipeContent({ selectedTopic }: RecipeContentProps) {
                   <div className="text-slate-200 text-sm font-medium mb-1 group-hover:text-primary-400 transition-colors">
                     {theme.title}
                   </div>
-                  <div className="text-slate-400 text-xs truncate">
-                    {theme.url}
+                  <div className="flex items-center gap-3 text-xs">
+                    <span className="text-slate-400 truncate">{theme.url}</span>
+                    <span className="text-slate-500 flex items-center gap-1 flex-shrink-0">
+                      <span>📅</span>
+                      <span>{formatDate(theme.date)}</span>
+                    </span>
                   </div>
                 </div>
                 <svg className="w-4 h-4 text-primary-400 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -7,12 +7,12 @@ export default function URLHealthCheck() {
   const [results, setResults] = useState<any>(null)
   const [showDetails, setShowDetails] = useState(false)
 
-  const checkURLs = async (checkAll = false) => {
+  const checkURLs = async (checkArticles = false) => {
     setChecking(true)
     setResults(null)
     
     try {
-      const response = await fetch(`/api/validate-urls${checkAll ? '?all=true' : ''}`)
+      const response = await fetch(`/api/validate-urls${checkArticles ? '?articles=true' : ''}`)
       const data = await response.json()
       setResults(data)
     } catch (error) {
@@ -35,14 +35,14 @@ export default function URLHealthCheck() {
             disabled={checking}
             className="px-4 py-2 bg-primary-500/20 text-primary-400 border border-primary-500/50 rounded-lg text-sm font-medium hover:bg-primary-500/30 transition-all disabled:opacity-50"
           >
-            {checking ? '⏳ Checking...' : '🔍 Quick Check (50)'}
+            {checking ? '⏳ Checking...' : '🔍 Check Feeds'}
           </button>
           <button
             onClick={() => checkURLs(true)}
             disabled={checking}
             className="px-4 py-2 bg-slate-700/60 text-slate-200 border border-slate-600 rounded-lg text-sm font-medium hover:bg-slate-700/80 transition-all disabled:opacity-50"
           >
-            {checking ? '⏳ Checking...' : '🔍 Full Check (200)'}
+            {checking ? '⏳ Checking...' : '🔍 Check Articles'}
           </button>
         </div>
       </div>
